@@ -1,0 +1,925 @@
+{% liquid  
+  assign total_tbody = ''
+%}
+{% for block in section.blocks %}
+  {%- case block.type -%}
+    {%- when 'heading' -%}
+      {% assign table_heading = block.settings.text | split: " @ " %}
+      {% capture thead %}
+          <tr>
+            {% for heading in table_heading %}
+              <th>{{ heading }}</th>
+            {% endfor %}
+          </tr>
+      {% endcapture %}
+    {%- when 'rows' -%}
+      {% assign table_rows = block.settings.text | split: " @ " %}
+      {% capture tbody %}
+          <tr>
+            {% for text in table_rows %}
+              <th>{{ text }}</th>
+            {% endfor %}
+          </tr>
+      {% endcapture %}
+  {%- endcase -%}
+  {% assign total_tbody = total_tbody | append: tbody %}
+{% endfor %}
+
+<style>
+{% for block in section.blocks %}
+  {%- case block.type -%}
+    {%- when 'style' -%}
+      {{ section.settings.class_name | prepend: '.'}} {
+        display: table;
+        position: relative;
+        width: 100%;
+        background-color: {{ block.settings.background }};
+        padding: {{ block.settings.padding }}px;
+        border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+        border-collapse: separate;
+      }
+    {%- when 'style_heading' -%}
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th{
+        font-size: {{ block.settings.font_size }}em;
+        font-weight: {{ block.settings.font_weight }};
+        font-style: {{ block.settings.font_style }};
+        text-align: {{ block.settings.text_align }};
+        color: {{ block.settings.color }};
+        background-color: {{ block.settings.background }};
+        padding: {{ block.settings.padding }}px;
+        border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+      }
+    {%- when 'style_rows_first' -%}
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th:first-child{
+        font-size: {{ block.settings.font_size }}em;
+        font-weight: {{ block.settings.font_weight }};
+        font-style: {{ block.settings.font_style }};
+        text-align: {{ block.settings.text_align }};
+        color: {{ block.settings.color }};
+        background-color: {{ block.settings.background }};
+        padding: {{ block.settings.padding }}px;
+        border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+      }
+      {% if block.settings.odd_and_even %}
+        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > th{
+          background-color: {{ block.settings.background_even }};
+        }
+      {% endif %}
+    {%- when 'style_rows_other' -%}
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th{
+        font-size: {{ block.settings.font_size }}em;
+        font-weight: {{ block.settings.font_weight }};
+        font-style: {{ block.settings.font_style }};
+        text-align: {{ block.settings.text_align }};
+        color: {{ block.settings.color }};
+        background-color: {{ block.settings.background }};
+        padding: {{ block.settings.padding }}px;
+        border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+      }
+      {% if block.settings.odd_and_even %}
+        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > th{
+          background-color: {{ block.settings.background_even }};
+        }
+      {% endif %}
+    {%- when 'breakpoint' -%}
+    @media only screen and (max-width: {{ block.settings.screen_size }}px) {
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th{
+        font-size: {{ block.settings.head_font_size }}em;
+        text-align: {{ block.settings.head_text_align }};
+        padding: {{ block.settings.head_padding }}px;
+      }
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th{
+        font-size: {{ block.settings.body_font_size }}em;
+        text-align: {{ block.settings.body_text_align }};
+        padding: {{ block.settings.body_padding }}px;
+      }
+    }
+    {%- when 'heading' -%}
+      {% if block.settings.column_ratio == 100 %}
+        {{ section.settings.class_name | prepend: '.'}} > thead > tr > th {
+          width: {{ block.settings.column_ratio | divided_by: block.settings.column_size |  round: 2 }}%;
+        }
+      {% else %}
+      {% assign divided_by_value = block.settings.column_size  | minus: 1 %}
+      {% assign otherwidth = 100 | minus: block.settings.column_ratio | divided_by: divided_by_value | round: 2 %}
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th {
+        width: {{ otherwidth }}%;
+      }
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th:first-child {
+        width: {{ block.settings.column_ratio }}%;
+      }
+      {% endif %}
+  {%- endcase -%}
+{% endfor %}
+</style>
+{% if request.design_mode %}
+  <section class="section is-width-standard">
+    <div class="container">
+      {% if section.settings.table_preview %}
+      <div class="table_preview one-whole column has-margin-bottom has-margin-top">
+          <table class="{{ section.settings.class_name }}">
+            <thead>{{ thead }}</thead>
+            <tbody>{{ total_tbody }}</tbody>
+          </table>
+      </div>
+      {% endif %}
+      {% if  section.settings.table_html %}
+        <style>
+          .code-area-{{ section.settings.class_name }} {width:100%;height:150px;padding:12px 20px;box-sizing:border-box;border:2px solid #ccc;background-color:#f8f8f8;font-size:16px;resize:none}.copy-button{display:block;margin-top:10px;padding:8px 12px;font-size:14px;cursor:pointer;background-color:#d74f00;color:#fff;border:none;border-radius:4px}.copy-button:hover{background-color:#af4101}
+        </style>
+        <div class="table_generator one-whole column has-margin-bottom">
+            <textarea class="code-area-{{ section.settings.class_name }}">
+              <table class="{{ section.settings.class_name }}">
+                <thead>{{ thead }}</thead>
+                <tbody>{{ total_tbody }}</tbody>
+              </table>
+            </textarea>
+            <button class="copy-button" onclick="copyCode{{ section.settings.class_name | remove: '-' }}()">Copy HTML Code</button>
+            <script>
+              var textarea = document.querySelector(".code-area-{{ section.settings.class_name }}");
+              function cleanUpHtml(html) {
+                return html.replace(/\s+</g, '<').replace(/>+\s/g, '>').replace(/\s+/g, ' ').trim();
+              }
+              var originalHtml = textarea.innerHTML;
+              var cleanedHtml = cleanUpHtml(originalHtml);
+              textarea.innerHTML = cleanedHtml;
+  
+              function copyCode{{ section.settings.class_name |  remove: '-' }}() {
+                textarea.select();
+                textarea.setSelectionRange(0, 99999);
+                document.execCommand("copy");
+              }
+            </script>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Table Style",
+    "tag": "section",
+    "class": "table-style",
+    "max_blocks": 15,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Table style",
+        "info": "Configure table style using options in blocks and add an unique class name for the table to isolate all table styles"
+      },
+      {
+        "type": "text",
+        "id": "class_name",
+        "label": "Class name",
+        "default": "table-style-one",
+        "info": "Don't leave it empty. If empty then table style won't appear"
+      },
+      {
+        "type": "checkbox",
+        "id": "table_preview",
+        "label": "Enable table preview"
+      },
+      {
+        "type": "checkbox",
+        "id": "table_html",
+        "label": "Enable generated html code"
+      }
+    ],
+    "blocks": [
+      {
+         "name": "Main Style",
+         "type": "style",
+         "limit": 1,
+         "settings": [
+           {
+              "type": "color",
+              "id": "background",
+              "label": "Background color",
+              "default": "transparent"
+           },
+           {
+              "type": "range",
+              "id": "padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Padding",
+              "default": 0
+           },
+           {
+              "type": "range",
+              "id": "border_width",
+              "min": 0,
+              "max": 5,
+              "step": 0.1,
+              "unit": "px",
+              "label": "Border width",
+              "default": 0
+           },
+           {
+              "type": "select",
+              "id": "border_style",
+              "label": "Border style",
+              "options": [
+                {
+                  "value": "dashed",
+                  "label": "Dashed"
+                },
+                {
+                  "value": "dotted",
+                  "label": "Dotted"
+                },
+                {
+                  "value": "double",
+                  "label": "Double"
+                },
+                {
+                  "value": "solid",
+                  "label": "Solid"
+                }
+              ],
+              "default": "solid"
+            },
+            {
+                "type": "color",
+                "id": "border_color",
+                "label": "Border color",
+                "default": "transparent"
+            }
+         ]
+       },
+      {
+         "name": "Heading Style",
+         "type": "style_heading",
+         "limit": 1,
+         "settings": [
+            {
+              "type": "select",
+              "id": "text_align",
+              "label": "Text align",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "left"
+                },
+                {
+                  "value": "right",
+                  "label": "right"
+                },
+                {
+                  "value": "center",
+                  "label": "center"
+                },
+                {
+                  "value": "justify",
+                  "label": "justify"
+                },
+                {
+                  "value": "initial",
+                  "label": "initial"
+                },
+                {
+                  "value": "inherit",
+                  "label": "inherit"
+                }
+              ],
+              "default": "center"
+            },
+            {
+              "type": "color",
+              "id": "color",
+              "label": "Text color",
+              "default": "#000000"
+            },
+            {
+              "type": "color",
+              "id": "background",
+              "label": "Background color",
+              "default": "transparent"
+            },
+            {
+              "type": "range",
+              "id": "font_size",
+              "min": 0.5,
+              "max": 5,
+              "step": 0.1,
+              "unit": "em",
+              "label": "Font size",
+              "default": 1.0
+            },
+            {
+              "type": "select",
+              "id": "font_weight",
+              "label": "Font weight",
+              "options": [
+                {
+                  "value": "lighter",
+                  "label": "Lighter"
+                },
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "bold",
+                  "label": "Bold"
+                },
+                {
+                  "value": "bolder",
+                  "label": "Bolder"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "select",
+              "id": "font_style",
+              "label": "Font style",
+              "options": [
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "italic",
+                  "label": "Italic"
+                },
+                {
+                  "value": "oblique",
+                  "label": "Oblique"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "range",
+              "id": "padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Padding",
+              "default": 0
+           },
+           {
+              "type": "range",
+              "id": "border_width",
+              "min": 0,
+              "max": 5,
+              "step": 0.1,
+              "unit": "px",
+              "label": "Border width",
+              "default": 0
+           },
+           {
+              "type": "select",
+              "id": "border_style",
+              "label": "Border style",
+              "options": [
+                {
+                  "value": "dashed",
+                  "label": "Dashed"
+                },
+                {
+                  "value": "dotted",
+                  "label": "Dotted"
+                },
+                {
+                  "value": "double",
+                  "label": "Double"
+                },
+                {
+                  "value": "solid",
+                  "label": "Solid"
+                }
+              ],
+              "default": "solid"
+            },
+            {
+                "type": "color",
+                "id": "border_color",
+                "label": "Border color",
+                "default": "transparent"
+            }
+         ]
+        },
+        {
+         "name": "Rows Style First",
+         "type": "style_rows_first",
+         "limit": 1,
+         "settings": [
+            {
+              "type": "select",
+              "id": "text_align",
+              "label": "Text align",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "left"
+                },
+                {
+                  "value": "right",
+                  "label": "right"
+                },
+                {
+                  "value": "center",
+                  "label": "center"
+                },
+                {
+                  "value": "justify",
+                  "label": "justify"
+                },
+                {
+                  "value": "initial",
+                  "label": "initial"
+                },
+                {
+                  "value": "inherit",
+                  "label": "inherit"
+                }
+              ],
+              "default": "center"
+            },
+            {
+              "type": "color",
+              "id": "color",
+              "label": "Text color",
+              "default": "#000000"
+            },
+            {
+              "type": "checkbox",
+              "id": "odd_and_even",
+              "label": "Enable odd and even"
+            },
+            {
+              "type": "color",
+              "id": "background",
+              "label": "Background color",
+              "default": "transparent"
+            },
+            {
+              "type": "color",
+              "id": "background_even",
+              "label": "Background color (even)",
+              "default": "transparent"
+            },
+            {
+              "type": "range",
+              "id": "font_size",
+              "min": 0.5,
+              "max": 5,
+              "step": 0.1,
+              "unit": "em",
+              "label": "Font size",
+              "default": 1.0
+            },
+            {
+              "type": "select",
+              "id": "font_weight",
+              "label": "Font weight",
+              "options": [
+                {
+                  "value": "lighter",
+                  "label": "Lighter"
+                },
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "bold",
+                  "label": "Bold"
+                },
+                {
+                  "value": "bolder",
+                  "label": "Bolder"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "select",
+              "id": "font_style",
+              "label": "Font style",
+              "options": [
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "italic",
+                  "label": "Italic"
+                },
+                {
+                  "value": "oblique",
+                  "label": "Oblique"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "range",
+              "id": "padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Padding",
+              "default": 0
+           },
+           {
+              "type": "range",
+              "id": "border_width",
+              "min": 0,
+              "max": 5,
+              "step": 0.1,
+              "unit": "px",
+              "label": "Border width",
+              "default": 0
+           },
+           {
+              "type": "select",
+              "id": "border_style",
+              "label": "Border style",
+              "options": [
+                {
+                  "value": "dashed",
+                  "label": "Dashed"
+                },
+                {
+                  "value": "dotted",
+                  "label": "Dotted"
+                },
+                {
+                  "value": "double",
+                  "label": "Double"
+                },
+                {
+                  "value": "solid",
+                  "label": "Solid"
+                }
+              ],
+              "default": "solid"
+            },
+            {
+                "type": "color",
+                "id": "border_color",
+                "label": "Border color",
+                "default": "transparent"
+            }
+         ]
+        },
+        {
+         "name": "Rows Style Other",
+         "type": "style_rows_other",
+         "limit": 1,
+         "settings": [
+            {
+              "type": "select",
+              "id": "text_align",
+              "label": "Text align",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "left"
+                },
+                {
+                  "value": "right",
+                  "label": "right"
+                },
+                {
+                  "value": "center",
+                  "label": "center"
+                },
+                {
+                  "value": "justify",
+                  "label": "justify"
+                },
+                {
+                  "value": "initial",
+                  "label": "initial"
+                },
+                {
+                  "value": "inherit",
+                  "label": "inherit"
+                }
+              ],
+              "default": "center"
+            },
+            {
+              "type": "color",
+              "id": "color",
+              "label": "Text color",
+              "default": "#000000"
+            },
+            {
+              "type": "checkbox",
+              "id": "odd_and_even",
+              "label": "Enable odd and even"
+            },
+            {
+              "type": "color",
+              "id": "background",
+              "label": "Background color",
+              "default": "transparent"
+            },
+            {
+              "type": "color",
+              "id": "background_even",
+              "label": "Background color (even)",
+              "default": "transparent"
+            },
+            {
+              "type": "range",
+              "id": "font_size",
+              "min": 0.5,
+              "max": 5,
+              "step": 0.1,
+              "unit": "em",
+              "label": "Font size",
+              "default": 1.0
+            },
+            {
+              "type": "select",
+              "id": "font_weight",
+              "label": "Font weight",
+              "options": [
+                {
+                  "value": "lighter",
+                  "label": "Lighter"
+                },
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "bold",
+                  "label": "Bold"
+                },
+                {
+                  "value": "bolder",
+                  "label": "Bolder"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "select",
+              "id": "font_style",
+              "label": "Font style",
+              "options": [
+                {
+                  "value": "normal",
+                  "label": "Normal"
+                },
+                {
+                  "value": "italic",
+                  "label": "Italic"
+                },
+                {
+                  "value": "oblique",
+                  "label": "Oblique"
+                }
+              ],
+              "default": "normal"
+            },
+            {
+              "type": "range",
+              "id": "padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Padding",
+              "default": 0
+           },
+           {
+              "type": "range",
+              "id": "border_width",
+              "min": 0,
+              "max": 5,
+              "step": 0.1,
+              "unit": "px",
+              "label": "Border width",
+              "default": 0
+           },
+           {
+              "type": "select",
+              "id": "border_style",
+              "label": "Border style",
+              "options": [
+                {
+                  "value": "dashed",
+                  "label": "Dashed"
+                },
+                {
+                  "value": "dotted",
+                  "label": "Dotted"
+                },
+                {
+                  "value": "double",
+                  "label": "Double"
+                },
+                {
+                  "value": "solid",
+                  "label": "Solid"
+                }
+              ],
+              "default": "solid"
+            },
+            {
+                "type": "color",
+                "id": "border_color",
+                "label": "Border color",
+                "default": "transparent"
+            }
+         ]
+        },
+        {
+         "name": "Break Point Style",
+         "type": "breakpoint", 
+         "limit": 3,
+         "settings": [
+           {
+              "type": "range",
+              "id": "screen_size",
+              "min": 400,
+              "max": 1400,
+              "step": 10,
+              "unit": "px",
+              "label": "Screen size",
+              "info": "Example: 480, 800, 1030 etc",
+              "default": 1030
+           },
+           {
+              "type": "select",
+              "id": "head_text_align",
+              "label": "Head text align",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "left"
+                },
+                {
+                  "value": "right",
+                  "label": "right"
+                },
+                {
+                  "value": "center",
+                  "label": "center"
+                },
+                {
+                  "value": "justify",
+                  "label": "justify"
+                },
+                {
+                  "value": "initial",
+                  "label": "initial"
+                },
+                {
+                  "value": "inherit",
+                  "label": "inherit"
+                }
+              ],
+              "default": "center"
+            },
+            {
+              "type": "range",
+              "id": "head_font_size",
+              "min": 0.5,
+              "max": 5,
+              "step": 0.1,
+              "unit": "em",
+              "label": "Head font size",
+              "default": 1.0
+            },
+            {
+              "type": "range",
+              "id": "head_padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Head padding",
+              "default": 0
+           },
+           {
+              "type": "select",
+              "id": "body_text_align",
+              "label": "Body text align",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "left"
+                },
+                {
+                  "value": "right",
+                  "label": "right"
+                },
+                {
+                  "value": "center",
+                  "label": "center"
+                },
+                {
+                  "value": "justify",
+                  "label": "justify"
+                },
+                {
+                  "value": "initial",
+                  "label": "initial"
+                },
+                {
+                  "value": "inherit",
+                  "label": "inherit"
+                }
+              ],
+              "default": "center"
+            },
+            {
+              "type": "range",
+              "id": "body_font_size",
+              "min": 0.5,
+              "max": 5,
+              "step": 0.1,
+              "unit": "em",
+              "label": "Body font size",
+              "default": 1.0
+            },
+            {
+              "type": "range",
+              "id": "body_padding",
+              "min": 0,
+              "max": 50,
+              "step": 1,
+              "unit": "px",
+              "label": "Body padding",
+              "default": 0
+           }
+         ]
+       },
+       {
+         "name": "Heading",
+         "type": "heading", 
+         "limit": 1,
+         "settings": [
+           {
+              "type": "range",
+              "id": "column_size",
+              "min": 1,
+              "max": 6,
+              "step": 1,
+              "unit": "px",
+              "label": "Column size",
+              "default": 1
+           },
+           {
+              "type": "range",
+              "id": "column_ratio",
+              "min": 20,
+              "max": 100,
+              "step": 5,
+              "unit": "px",
+              "label": "1st Column ratio",
+              "default": 100
+           },
+           {
+             "type": "textarea",
+             "id": "text",
+             "label": "Text",
+             "default": "Heading",
+             "info": "Split by @ for example: Heading One @ Heading Two"
+           }
+         ]
+       },
+       {
+         "name": "Rows",
+         "type": "rows",
+         "limit": 6,
+         "settings": [
+           {
+             "type": "textarea",
+             "id": "text",
+             "label": "Text",
+             "default": "Innter text",
+             "info": "Split by @ for example: Innter text One @ Innter text Two"
+           }
+         ]
+       }
+     ],
+     "presets": [
+      {
+        "name": "Table Style",
+        "category": "Style",
+        "settings": {
+
+        }
+      }
+    ],
+    "disabled_on": {
+      "templates": ["password"],
+      "groups": ["footer","header"]
+    }
+  }
+  {% endschema %}
