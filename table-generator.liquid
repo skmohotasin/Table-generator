@@ -21,8 +21,8 @@
             {% endfor %}
           </tr>
       {% endcapture %}
+      {% assign total_tbody = total_tbody | append: tbody %}
   {%- endcase -%}
-  {% assign total_tbody = total_tbody | append: tbody %}
 {% endfor %}
 
 <style>
