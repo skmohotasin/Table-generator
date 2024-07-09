@@ -8,7 +8,7 @@
       {% capture thead %}
           <tr>
             {% for heading in table_heading %}
-              <th>{{ heading }}</th>
+              <td>{{ heading }}</td>
             {% endfor %}
           </tr>
       {% endcapture %}
@@ -17,7 +17,7 @@
       {% capture tbody %}
           <tr>
             {% for text in table_rows %}
-              <th>{{ text }}</th>
+              <td>{{ text }}</td>
             {% endfor %}
           </tr>
       {% endcapture %}
@@ -39,7 +39,7 @@
         border-collapse: separate;
       }
     {%- when 'style_heading' -%}
-      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th{
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > td {
         font-size: {{ block.settings.font_size }}em;
         font-weight: {{ block.settings.font_weight }};
         font-style: {{ block.settings.font_style }};
@@ -50,7 +50,7 @@
         border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
       }
     {%- when 'style_rows_first' -%}
-      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th:first-child{
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > td:first-child {
         font-size: {{ block.settings.font_size }}em;
         font-weight: {{ block.settings.font_weight }};
         font-style: {{ block.settings.font_style }};
@@ -61,12 +61,12 @@
         border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
       }
       {% if block.settings.odd_and_even %}
-        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > th{
+        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > td {
           background-color: {{ block.settings.background_even }};
         }
       {% endif %}
     {%- when 'style_rows_other' -%}
-      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th{
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > td {
         font-size: {{ block.settings.font_size }}em;
         font-weight: {{ block.settings.font_weight }};
         font-style: {{ block.settings.font_style }};
@@ -77,18 +77,18 @@
         border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
       }
       {% if block.settings.odd_and_even %}
-        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > th{
+        {{ section.settings.class_name | prepend: '.'}} > tbody > tr:nth-child(even) > td {
           background-color: {{ block.settings.background_even }};
         }
       {% endif %}
     {%- when 'breakpoint' -%}
     @media only screen and (max-width: {{ block.settings.screen_size }}px) {
-      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th{
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > td {
         font-size: {{ block.settings.head_font_size }}em;
         text-align: {{ block.settings.head_text_align }};
         padding: {{ block.settings.head_padding }}px;
       }
-      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > th{
+      {{ section.settings.class_name | prepend: '.'}} > tbody > tr > td {
         font-size: {{ block.settings.body_font_size }}em;
         text-align: {{ block.settings.body_text_align }};
         padding: {{ block.settings.body_padding }}px;
@@ -96,16 +96,16 @@
     }
     {%- when 'heading' -%}
       {% if block.settings.column_ratio == 100 %}
-        {{ section.settings.class_name | prepend: '.'}} > thead > tr > th {
+        {{ section.settings.class_name | prepend: '.'}} > thead > tr > td {
           width: {{ block.settings.column_ratio | divided_by: block.settings.column_size |  round: 2 }}%;
         }
       {% else %}
       {% assign divided_by_value = block.settings.column_size  | minus: 1 %}
       {% assign otherwidth = 100 | minus: block.settings.column_ratio | divided_by: divided_by_value | round: 2 %}
-      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th {
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > td {
         width: {{ otherwidth }}%;
       }
-      {{ section.settings.class_name | prepend: '.'}} > thead > tr > th:first-child {
+      {{ section.settings.class_name | prepend: '.'}} > thead > tr > td:first-child {
         width: {{ block.settings.column_ratio }}%;
       }
       {% endif %}
@@ -870,7 +870,7 @@
               "min": 1,
               "max": 6,
               "step": 1,
-              "unit": "px",
+              "unit": "Col",
               "label": "Column size",
               "default": 1
            },
@@ -880,7 +880,7 @@
               "min": 20,
               "max": 100,
               "step": 5,
-              "unit": "px",
+              "unit": "%",
               "label": "1st Column ratio",
               "default": 100
            },
